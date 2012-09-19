@@ -1,36 +1,36 @@
 #include "WPILib.h"
 
 class DefaultRobot : public SimpleRobot
-{
+{ 
 
-	DriverStation* ds;
-	Jaguar* leftmotor;
-	Jaguar* rightmotor;
-	Jaguar* gyro;
-	Jaguar* test;
-	Jaguar* shooter;
-	Joystick* leftStick;
-	Joystick* rightStick;
-	Joystick* thirdStick;
-	Joystick* fourthStick;
-	Relay* armlift;
-	Relay* armmove;
-	RobotDrive* myRobot;
-	Jaguar* sally;
-	Compressor* compressor;
-	Relay* compress;
-	Solenoid* servo;
-	Solenoid* servor;
+	DriverStation* DS;
+	Jaguar* Porter;			
+	Jaguar* Ports;		
+	Jaguar* LeftPorter;									
+	Jaguar* RightPorter;               
+	Jaguar* ThirdPorter;          
+	Joystick* Leftstick;
+	Joystick* RightStick;	
+	Joystick* OtherLeftstick;		
+	Joystick* OtherRightstick;		
+	Relay* Lifter;			
+	Relay* Mover;		
+	RobotDrive* Robot;		
+	Jaguar* Cougar;
+	Compressor* Air;
+	Relay* Thirdmover;
+	Solenoid* solarnoid;
+	Solenoid* solenoid;
 	Solenoid* sole;
-	Solenoid* soler;
-	DigitalInput* limit;
-
-//always put in code
-	enum JUMPERS					// Driver Station jumpers to control program operation
-	{ ARCADE_MODE = 1,				// Tank/Arcade jumper is on DS Input 1 (Jumper present is arcade)
-	  DISABLE_AUTONOMOUS = 2,		// Autonomous/Teleop jumper is on DS Input 2 (Jumper absent is autonomous)
-	  AUTO_TURN_LEFT = 4			// putting jumper on 4 makes robot turn left, not right, in autonomous mode
-	};
+	Solenoid* solar;
+	DigitalInput* DI;
+	
+	//always put in code
+		enum JUMPERS					// Driver Station jumpers to control program operation
+		{ ARCADE_MODE = 1,				// Tank/Arcade jumper is on DS Input 1 (Jumper present is arcade)
+		  DISABLE_AUTONOMOUS = 2,		// Autonomous/Teleop jumper is on DS Input 2 (Jumper absent is autonomous)
+		  AUTO_TURN_LEFT = 4			// putting jumper on 4 makes robot turn left, not right, in autonomous mode
+		};
 
 
 public:
@@ -39,36 +39,38 @@ public:
 	void TurnLeft(int);					// turn left <angle> degrees
 	void SensorDrive(int, float, bool);	// drive certain distance (IN FEET) forwards or backwards using gyro and geartooth sensors
 
+	
+	
 
 	DefaultRobot(void)  //labels what is pluged into where with the name you gave it
 	{
-		ds = DriverStation::GetInstance();
-		myRobot = new RobotDrive(1, 2, 3, 4);	// create robot drive base
-		myRobot->SetInvertedMotor(myRobot->kFrontLeftMotor, true);
-		//myRobot->SetInvertedMotor(myRobot->kRearLeftMotor, true);
-		//myRobot->SetInvertedMotor(myRobot->kFrontRightMotor, true);
-		myRobot->SetInvertedMotor(myRobot->kRearRightMotor, true);
-		leftmotor = new Jaguar(1);
-		rightmotor = new Jaguar(2);
-		gyro = new Jaguar(3);
-		test = new Jaguar(4);
-		shooter = new Jaguar(5);
-		leftStick = new Joystick(1);
-		rightStick = new Joystick(2);
-		thirdStick= new Joystick(3);
-		fourthStick = new Joystick(4);
-		compressor = new Compressor(1, 3);
-		compressor->Start();
-		armlift = new Relay(1);
-		armmove = new Relay(2);
-		sally = new Jaguar(6);
-		compress = new Relay(3);
-		servo = new Solenoid(8, 3);
-		servor = new Solenoid(8, 4);
-		sole = new Solenoid(8, 1);
-		soler = new Solenoid(8, 2);
-		limit = new DigitalInput(1);
-
+		DS = DriverStation::GetInstance();
+		Robot = new RobotDrive(1, 2, 3, 4);	// create robot drive base
+		//Robot->SetInvertedMotor(Robot->kFrontLeftMotor, true);
+		Robot->SetInvertedMotor(Robot->kRearLeftMotor, true);
+		//Robot->SetInvertedMotor(Robot->kFrontRightMotor, true);
+		Robot->SetInvertedMotor(Robot->kRearRightMotor, true);
+		//Porter = new Jaguar(1);
+		//Ports = new Jaguar(2);
+		//LeftPorter = new Jaguar(3);
+		//RightPorter = new Jaguar(4);
+		//ThirdPorter = new Jaguar(5);
+		Leftstick = new Joystick(1);
+		RightStick = new Joystick(2);
+		OtherLeftstick= new Joystick(3);
+		OtherRightstick = new Joystick(4);
+		Air = new Compressor(1, 3);
+		Air->Start();
+		Lifter = new Relay(1);
+		Mover = new Relay(2);
+		//Cougar = new Jaguar(6);
+		//Thirdmover = new Relay(3);
+		solarnoid = new Solenoid(3);
+		solenoid = new Solenoid(4);
+		sole = new Solenoid(1);
+		solar = new Solenoid(2);
+		DI = new DigitalInput(1);
+		
 
 
 		//Update the motors at least every 100ms.
@@ -76,61 +78,55 @@ public:
 		//watchdoggie makes it so if their is a problem in the program it wont run
 	}
 
-
+void Initialize(void)
+{
+	CreateRobotDrive(LEFT_MOTOR_PORT, RIGHT_MOTOR_PORT);
+	SetWatchdogExpiration(0.1);
+}
+	
+	
 	void Autonomous(void)
                  //mode when robot moves on own without controls
 	{
-		GetWatchdog().SetEnabled(true); //wont run is doggie doesnt work
-
-		{
-			Watchdog().Feed();
-		 compressor->Start();
-			Wait(0.1);
-			armmove->Set(Relay::kForward);
+		SetWatchdogEnabled(false); //wont run is doggie doesnt work
+			Drive(0.5, 0.5);
+			Wait(3.5);
+			Drive(-0.5, 0.5);
+			Wait(1.6);
+			Drive(-0.5, -0.5);
+			Wait(1.10);
+			Lifter(k::On);
 			Wait(0.58);
-			armmove->Set(Relay::kOff);
-			Wait(0.1);
-			armlift->Set(Relay::kForward);
-			Wait(4.0);
-			armlift->Set(Relay::kOff);
-			Wait(0.1);
-			servo->Set(false);
-			servor->Set(true);
-			Wait(0.1);
-			sole->Set(false);
-			soler->Set(true);
-			Wait(0.5);
-			armmove->Set(Relay::kForward);
-			Wait(1.5);
-			armlift->Set(Relay::kForward);
-			Wait(2.4);
-			armmove->Set(Relay::kOff);
-			armlift->Set(Relay::kOff);
-
-
-			for (int i =0; i < 5000;i++)
+			Lifter(relay::kOFF);
+			Drive(0.0, 0.5);
+			wait(1.6);
+			Drive(1.0, 1.0);
+			wait(1.3);
+	}
+			int i = 0;
+			for (i =0; i < 5000;i++)
 			{
 				Watchdog().Feed();
-				myRobot->Drive(-0.57, 0.0);
+				Robot->Drive(-0.57, 0.0);
 				Wait(0.001);
-
-
+			
+				 
 			}
-
+			
 			sole->Set(true);
-		    soler->Set(false);
-
-
-
-
-				}
-
-		GetWatchdog().SetEnabled(false);
+		    solar->Set(false);
+			
+			
+		}
+					
+				
+		
+		GetWatchdog().SetEnabled(true);
 
 	}
 
 
-
+	
 
 	void OperatorControl(void)
 	{
@@ -142,79 +138,79 @@ public:
 			              //feed doggie
 
             // determine if tank or arcade mode; default with no jumper is for tank drive
-			if (!ds->GetDigitalIn(ARCADE_MODE) == 0) {
-				myRobot->TankDrive(leftStick, rightStick);	 // drive with tank style
+			if (!DS->GetDigitalIn(ARCADE_MODE) == 0) {
+				Robot->TankDrive(Leftstick, RightStick);	 // drive with tank style
 			}
 
 			else {
-				myRobot->ArcadeDrive(leftStick);	         // drive with arcade style (use right stick)
+				Robot->ArcadeDrive(Leftstick);	         // drive with arcade style (use right stick)
 			}
 
 			//move up and down
-
-
-			if (thirdStick->GetRawAxis(2) > 0.25){
-				armmove->Set(Relay::kForward);
+			
+		
+			if (OtherLeftstick->GetRawAxis(2) > 0.25){
+				Lifter->Set(Relay::kForward);
 			}
-			else if (thirdStick->GetRawAxis(2) < -0.25){
-				armmove->Set(Relay::kReverse);
+			else if (OtherLeftstick->GetRawAxis(2) < -0.25){
+				Lifter->Set(Relay::kReverse);
 			}
 			else {
-				armmove->Set(Relay::kOff);
+				Lifter->Set(Relay::kOff);
 			}
-
-
+							
+							
 							//in and out
-	    	if (fourthStick->GetRawAxis(2) < -0.25 ){
-				armlift->Set(Relay::kForward);
+	    	if (OtherRightstick->GetRawAxis(2) < -0.25 ){
+				Mover->Set(Relay::kForward);
 			}
-			else if (fourthStick->GetRawAxis(2) > 0.25){
-				armlift->Set(Relay::kReverse);
+			else if (OtherRightstick->GetRawAxis(2) > 0.25){
+				Mover->Set(Relay::kReverse);
 			}
 			else{
-				armlift->Set(Relay::kOff);
+				Mover->Set(Relay::kOff);
 			}
-
-		    if (thirdStick->GetRawButton(2)){
-		    	servo->Set(true);
-			   	servor->Set(false);
+							
+		    if (OtherLeftstick->GetRawButton(2)){
+		    	solarnoid->Set(true);
+			   	solenoid->Set(false);
 		    }
-		    else if(thirdStick->GetRawButton(1))  {
-			   	servo->Set(false);
-			   	servor->Set(true);
+		    else if(OtherLeftstick->GetRawButton(1))  {
+			   	solarnoid->Set(false);
+			   	solenoid->Set(true);
 		    }
-
+						    
 		    else {
-		    	servo->Set(false);
-		    	servor->Set(false);
+		    	solarnoid->Set(false);
+		    	solenoid->Set(false);
 		   }
-
-			if(fourthStick->GetRawButton(1)){
+							
+			if(OtherRightstick->GetRawButton(1)){
 				sole->Set(false);
-				soler->Set(true);
+				solar->Set(true);
 			}
-			else if(fourthStick->GetRawButton(2)){
+			else if(OtherRightstick->GetRawButton(2)){
 				sole->Set(true);
-				soler->Set(false);
+				solar->Set(false);	
 			}
 			else  {
 				sole->Set(true);
-				soler->Set(false);
+				solar->Set(false);
 			}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+				
+			
+			
+			
+		
+			
+			
+				
+			
+			
+			
+			
+			
+		
 
 
 
